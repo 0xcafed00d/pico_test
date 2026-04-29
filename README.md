@@ -7,10 +7,62 @@ framework.
 The public API lives in:
 
 ```cpp
-#include "pico_test.h"
+#include "pico_test/pico_test.h"
 ```
 
 Add this repository's `include` directory to your compiler include path.
+
+## Using This Library
+
+### With CMake FetchContent
+
+Add `pico_test` to the host project's `CMakeLists.txt` with `FetchContent`:
+
+```cmake
+include(FetchContent)
+
+FetchContent_Declare(
+	pico_test
+	GIT_REPOSITORY https://github.com/0xcafed00d/pico_test.git
+	GIT_TAG        v1.0.0
+)
+
+FetchContent_MakeAvailable(pico_test)
+```
+
+Then link test executables to the interface target:
+
+```cmake
+add_executable(example_tests tests/example_tests.cpp)
+target_link_libraries(example_tests PRIVATE pico_test::pico_test)
+```
+
+Replace `<owner>` and `<tag-or-commit>` with the repository location and version
+you want to consume. The target adds the required include directory and requests
+C++20 for consumers.
+
+### By Copying the Header
+
+Because `pico_test` is header-only, you can also copy the header into the host
+project:
+
+```text
+include/pico_test/pico_test.h
+```
+
+Keep that `pico_test/` subdirectory in the include path so source files can use
+the documented include:
+
+```cpp
+#include "pico_test/pico_test.h"
+```
+
+For example, if the copied file is under the host project's `include/`
+directory, add that directory to the test target:
+
+```cmake
+target_include_directories(example_tests PRIVATE include)
+```
 
 ## Requirements
 
@@ -23,7 +75,7 @@ Add this repository's `include` directory to your compiler include path.
 ```cpp
 #include <span>
 
-#include "pico_test.h"
+#include "pico_test/pico_test.h"
 
 void addition_works() {
 	pico_test::expect_eq(2 + 2, 4, "basic addition should work");
@@ -219,7 +271,7 @@ pico_test::Failure
 #include <stdexcept>
 #include <span>
 
-#include "pico_test.h"
+#include "pico_test/pico_test.h"
 
 int divide(int lhs, int rhs) {
 	if (rhs == 0) {
